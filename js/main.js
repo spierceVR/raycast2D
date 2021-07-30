@@ -10,7 +10,7 @@
     const slider = document.getElementById("myRange");
     const output = document.getElementById("rayCount");
     // generate random barriers
-    const barriers = []; 
+    const barriers = [];
     for (let i = 0; i < 5; i++) {
         let b1 = new Barrier(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * canvas.width, Math.random() * canvas.height);
         barriers.push(b1);
@@ -27,7 +27,7 @@ function draw(e, barriers, ctx, canvas, slider, output) {
     // create rays
     let rays = []
     for (let i = 0; i < sliderValue; i++) {
-        let r1 = new Ray(point.x, point.y, i * ((Math.PI * 2) /sliderValue));
+        let r1 = new Ray(point.x, point.y, i * ((Math.PI * 2) / sliderValue));
         rays.push(r1)
     }
 
