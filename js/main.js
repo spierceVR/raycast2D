@@ -6,23 +6,28 @@
     console.log(canvas);
     console.log("Canvas Found");
     setup(800, 600);
+    // get slider element and ray counter
+    const slider = document.getElementById("myRange");
+    const output = document.getElementById("rayCount");
     // generate random barriers
-    let barriers = []
+    const barriers = []; 
     for (let i = 0; i < 5; i++) {
         let b1 = new Barrier(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * canvas.width, Math.random() * canvas.height);
         barriers.push(b1);
     }
-    window.addEventListener('mousemove',(e) => draw(e, barriers, ctx, canvas), false);
+    window.addEventListener('mousemove', (e) => draw(e, barriers, ctx, canvas, slider, output), false);
 })();
 
-function draw(e, barriers, ctx, canvas) {
+function draw(e, barriers, ctx, canvas, slider, output) {
     //create point 
     let point = getMousePos(canvas, e);
+    let sliderValue = slider.value;
+    output.innerHTML = "Ray Count : " + sliderValue;
 
     // create rays
     let rays = []
-    for (let i = 0; i < 32; i++) {
-        let r1 = new Ray(point.x, point.y, i * (Math.PI / 16));
+    for (let i = 0; i < sliderValue; i++) {
+        let r1 = new Ray(point.x, point.y, i * ((Math.PI * 2) /sliderValue));
         rays.push(r1)
     }
 

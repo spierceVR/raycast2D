@@ -5,13 +5,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>raycast2D</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
     <canvas width="400" height="300" id="canvas">
         This browser does not support the canvas element
     </canvas>
+    <div class="slidecontainer">
+        <h3 id="rayCount">Ray Count</h3>
+        <input type="range" min="1" max="400" value="50" class="slider" id="myRange">
+    </div>
     <script src="js/Ray.js"></script>
     <script src="js/Barrier.js"></script>
     <script src="js/main.js"></script>
