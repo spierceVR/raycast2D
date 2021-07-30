@@ -19,13 +19,9 @@ function draw(e) {
         rays.push(r1)
     }
 
-    for (let i = 0; i < 32; i++) {
-            
-        
-        
-        
-
-        let b1 = new Barrier();
+    // generate random barriers
+    for (let i = 0; i < 5; i++) {
+        let b1 = new Barrier(random(canvas.width), random(canvas.height), random(canvas.width), random(canvas.height));
         barriers.push(b1);
     }
 
@@ -46,7 +42,7 @@ function draw(e) {
             if (intersect) { // if intersection found between this current ray barrier pair
                 let dist = pointDistance(ray.p1, intersect);
                 if (dist < minDist) {
-                    minDist = dist; 
+                    minDist = dist;
                     closestP = intersect; // make closest point the current point
                 }
             }
@@ -85,7 +81,7 @@ function drawLine(ctx, p1, p2, color = 'white') {
     ctx.stroke();
 }
 
-calculateIntersection = function(p0, p1, p2, p3) {
+calculateIntersection = function (p0, p1, p2, p3) {
     var s, s1_x, s1_y, s2_x, s2_y, t;
 
     s1_x = p1.x - p0.x;
@@ -95,13 +91,13 @@ calculateIntersection = function(p0, p1, p2, p3) {
     s = (-s1_y * (p0.x - p2.x) + s1_x * (p0.y - p2.y)) / (-s2_x * s1_y + s1_x * s2_y);
     t = (s2_x * (p0.y - p2.y) - s2_y * (p0.x - p2.x)) / (-s2_x * s1_y + s1_x * s2_y);
     if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-      return {
-        x: p0.x + (t * s1_x),
-        y: p0.y + (t * s1_y)
-      };
+        return {
+            x: p0.x + (t * s1_x),
+            y: p0.y + (t * s1_y)
+        };
     }
     return null;
-  };
+};
 
 function getMousePos(canvas, evt) {
     let rect = canvas.getBoundingClientRect();
