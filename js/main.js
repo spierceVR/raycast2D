@@ -1,29 +1,32 @@
-const canvas = document.querySelector('#canvas');
-// get context
-let ctx = canvas.getContext('2d');
-console.log(ctx);
-console.log("Canvas Found");
-setup(400, 300);
-window.addEventListener('mousemove', draw, false);
+(() => {
+    const canvas = document.querySelector('#canvas');
+    // get context
+    const ctx = canvas.getContext('2d');
+    console.log(ctx);
+    console.log(canvas);
+    console.log("Canvas Found");
+    setup(800, 600);
+    // generate random barriers
+    let barriers = []
+    for (let i = 0; i < 5; i++) {
+        let b1 = new Barrier(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * canvas.width, Math.random() * canvas.height);
+        barriers.push(b1);
+    }
+    window.addEventListener('mousemove',(e) => draw(e, barriers, ctx, canvas), false);
+})();
 
-function draw(e) {
+function draw(e, barriers, ctx, canvas) {
     //create point 
     let point = getMousePos(canvas, e);
 
-    // create rays and barriers
+    // create rays
     let rays = []
-    let barriers = []
-
     for (let i = 0; i < 32; i++) {
         let r1 = new Ray(point.x, point.y, i * (Math.PI / 16));
         rays.push(r1)
     }
 
-    // generate random barriers
-    for (let i = 0; i < 5; i++) {
-        let b1 = new Barrier(random(canvas.width), random(canvas.height), random(canvas.width), random(canvas.height));
-        barriers.push(b1);
-    }
+
 
     //draw background 
     drawRectangle(ctx, canvas.width, canvas.height);
@@ -59,6 +62,7 @@ function draw(e) {
 function setup(width, height) {
     canvas.width = width;
     canvas.height = height;
+
 }
 
 function pointDistance(p1, p2) {
