@@ -6,6 +6,7 @@
     console.log(canvas);
     console.log("Canvas Found");
     setup(800, 600);
+    drawRectangle(ctx, canvas.width, canvas.height);
     // get slider element and ray counter
     const slider = document.getElementById("myRange");
     const output = document.getElementById("rayCount");
