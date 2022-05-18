@@ -1,85 +1,103 @@
 (() => {
-    const canvas = document.querySelector('#canvas');
+    // get canvas elements and resize them
+    const canvas1 = document.querySelector('#canvas');
+    resize(canvas1);
+    const canvas2 = document.querySelector('#canvas2');
+    resize(canvas2);
+
     // get context
-    const ctx = canvas.getContext('2d');
-    console.log(ctx);
-    console.log(canvas);
-    console.log("Canvas Found");
-    setup(800, 600);
-    drawRectangle(ctx, canvas.width, canvas.height);
-    // get slider element and ray counter
-    const slider = document.getElementById("myRange");
-    const output = document.getElementById("rayCount");
+    const ctx1 = canvas1.getContext('2d');
+    const ctx2 = canvas2.getContext('2d');
+
+    // draw canvas backgrounds on page load
+    drawRectangle(ctx1, canvas1.width, canvas1.height);
+    drawRectangle(ctx2, canvas2.width, canvas2.height);
+
+
+    // I/O from sliders for ray count, ray length, and FOV
+    const rayCount = document.getElementById("sliderCount").value;
+    const fov = document.getElementById("sliderFov").value;
+    const rayLen = document.getElementById("sliderLen").value;
+
+    const fovLabel = document.getElementById("fovLabel");
+    const countLabel = document.getElementById("countLabel");
+
+
     // generate random barriers
-    const barriers = [];
-    for (let i = 0; i < 5; i++) {
-        let b1 = new Barrier(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * canvas.width, Math.random() * canvas.height);
-        barriers.push(b1);
+    const barriers = genBarriers(canvas1);
+
+    //create singleton camera
+    const camera = new Camera(canvas1.width / 2, canvas1.height / 2, fov, 0, rayCount, rayLen);
+
+    // stores which keys are pressed
+    const controller = {
+        "a": { pressed: false },
+        "d": { pressed: false },
+        "w": { pressed: false },
+        "s": { pressed: false }
     }
-    window.addEventListener('mousemove', (e) => draw(e, barriers, ctx, canvas, slider, output), false);
+
+    //manage keys up / down
+    window.addEventListener("keydown", (e) => {
+        if (controller[e.key]) {
+            controller[e.key].pressed = true;
+        }
+    });
+    document.addEventListener("keyup", (e) => {
+        if (controller[e.key]) {
+            controller[e.key].pressed = false;
+        }
+    })
+    
+    // new camera from slider values on click button
+    document.getElementById("apply").addEventListener("click", () => { handleApplySettings(camera, fovLabel, countLabel) });
+
+    window.requestAnimationFrame((timestamp) => animate(camera, barriers, ctx1, ctx2, controller));
 })();
 
-function draw(e, barriers, ctx, canvas, slider, output) {
-    //create point 
-    let point = getMousePos(canvas, e);
-    let sliderValue = slider.value;
-    output.innerHTML = "Ray Count : " + sliderValue;
+// called each frame to draw the scene
+animate = (camera, barriers, ctx1, ctx2, controller) => {
+    console.log("animating");
+    // update cameras position in the scene based on keys pressed
+    camera.updatePos(controller);
 
-    // create rays
-    let rays = []
-    for (let i = 0; i < sliderValue; i++) {
-        let r1 = new Ray(point.x, point.y, i * ((Math.PI * 2) / sliderValue));
-        rays.push(r1)
-    }
+    // non-ray drawing
+    setup2D(ctx1, barriers);
+    setup3D(ctx2);
 
+    // do raycasting and show results on 2D and 3D views
+    camera.look(ctx1, ctx2, barriers);
 
-
-    //draw background 
-    drawRectangle(ctx, canvas.width, canvas.height);
-
-    // draw barriers
-    for (let barrier of barriers) {
-        drawLine(ctx, barrier.p1, barrier.p2);
-    }
-
-    // draw rays from MousePos to intersection with closest barrier
-    for (let ray of rays) {
-        let closestP = null; // closest point of intersection so far
-        let minDist = Infinity; // smallest distance between mousepos and a barrier
-        for (let barrier of barriers) {
-            let intersect = calculateIntersection(ray.p1, ray.p2, barrier.p1, barrier.p2); // current poi for current ray, barrier pair
-            if (intersect) { // if intersection found between this current ray barrier pair
-                let dist = pointDistance(ray.p1, intersect);
-                if (dist < minDist) {
-                    minDist = dist;
-                    closestP = intersect; // make closest point the current point
-                }
-            }
-        }
-        if (closestP) { // if any intersection was found
-            drawLine(ctx, ray.p1, closestP);
-        }
-        else { // if no intersection found
-            drawLine(ctx, ray.p1, ray.p2);
-        }
-    }
+    // request next frame
+    window.requestAnimationFrame((timestamp) => animate(camera, barriers, ctx1, ctx2, controller));
 }
 
-function setup(width, height) {
-    canvas.width = width;
-    canvas.height = height;
+function handleApplySettings(camera, fovLabel, countLabel) {
+    // get fresh slider values
+    const fov = document.getElementById("sliderFov").value;
+    const rayCount = document.getElementById("sliderCount").value;
+    const rayLen = document.getElementById("sliderLen").value;
 
+    setLabels(fovLabel, countLabel, fov, rayCount);
+    camera.updateSettings(fov, rayCount, rayLen);
 }
+
+//update page labels for ray count and length
+function setLabels(fovLabel, countLabel, fov, rayCount) {
+    countLabel.innerHTML = "Ray Count : " + rayCount;
+    fovLabel.innerHTML = "FOV : " + fov;
+}
+
 
 function pointDistance(p1, p2) {
     return Math.hypot((p1.x - p2.x), (p1.y - p2.y))
 }
 
-function drawRectangle(ctx, width, height, color = "black") {
+function drawRectangle(ctx, x1, y1, width, height, color = "black") {
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
-    ctx.fillRect(0, 0, width, height); // x, y, w, h
-    ctx.strokeRect(0, 0, width, height);
+    ctx.fillRect(x1, y1, width, height);
+    ctx.strokeRect(x1, y1, width, height);
 }
 
 function drawLine(ctx, p1, p2, color = 'white') {
@@ -91,7 +109,7 @@ function drawLine(ctx, p1, p2, color = 'white') {
     ctx.stroke();
 }
 
-calculateIntersection = function (p0, p1, p2, p3) {
+calculateIntersection = (p0, p1, p2, p3) => {
     var s, s1_x, s1_y, s2_x, s2_y, t;
 
     s1_x = p1.x - p0.x;
@@ -109,10 +127,61 @@ calculateIntersection = function (p0, p1, p2, p3) {
     return null;
 };
 
-function getMousePos(canvas, evt) {
-    let rect = canvas.getBoundingClientRect();
-    return {
-        x: evt.clientX - rect.left,
-        y: evt.clientY - rect.top
-    };
+//draw a vertical slice of the wall
+function drawSlice(ctx, x, dist, rayCount, rayLen) {
+    const colorVal = (1 - (dist / rayLen)) * 255;
+    const wallHeight = (1 - (dist / rayLen)) * ctx.canvas.height;
+    const gray = `rgb(${colorVal}, ${colorVal}, ${colorVal})`;
+    const sliceWidth = ctx.canvas.width / rayCount;
+    drawRectangle(ctx, x * sliceWidth, (ctx.canvas.height - wallHeight) * 0.5, sliceWidth, wallHeight, gray);
+}
+
+//set size of canvas
+function resize(canvas) {
+    canvas.width = window.innerWidth * .45;
+    canvas.height = window.innerHeight * .7;
+}
+
+// create array of randomly generated barriers
+function genBarriers(canvas) {
+    const barriers = [];
+    for (let i = 0; i < 5; i++) {
+        let b1 = new Barrier(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * canvas.width, Math.random() * canvas.height);
+        barriers.push(b1);
+    }
+    return barriers;
+}
+
+// convert degrees to radians
+function radians(degrees) {
+    return degrees * Math.PI / 180;
+}
+
+// draw background and walls on 2D scene
+function setup2D(ctx, barriers) {
+    //draw backgrounds 
+    drawRectangle(ctx, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    // draw barriers
+    for (let barrier of barriers) {
+        drawLine(ctx, barrier.p1, barrier.p2);
+    }
+}
+
+// draw background and floor plane on 3D scene
+function setup3D(ctx) {
+    let h = ctx.canvas.height;
+    let w = ctx.canvas.width;
+    //draw background
+    drawRectangle(ctx, 0, 0, w, h);
+
+    //draw floor
+    // Create gradient
+    let grd = ctx.createLinearGradient(w, h, w, h * 0.45);
+    grd.addColorStop(0, "gray");
+    grd.addColorStop(1, "black");
+
+    // Fill with gradient
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, h * 0.5, w, h)
 }
