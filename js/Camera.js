@@ -9,7 +9,7 @@ class Camera {
 
         this.rays = [];
         for (let i = 0; i < rayCount; i++) {
-            let rayTheta = (i * (radians(fov) / rayCount)) - (radians(fov) / 2) + theta;
+            let rayTheta = (i * (radians(fov) / rayCount)) - (radians(fov) / 2) + radians(theta);
             let r1 = new Ray(this.x, this.y, rayTheta, rayLen);
             this.rays.push(r1);
         }
@@ -24,7 +24,7 @@ class Camera {
             for (let barrier of barriers) {
                 let intersect = calculateIntersection(ray.p1, ray.p2, barrier.p1, barrier.p2); // current poi for current ray, barrier pair
                 if (intersect) { // if intersection found between this current ray barrier pair
-                    let dist = pointDistance(ray.p1, intersect);
+                    let dist = pointDistance(ray.p1, intersect) * (Math.cos(Math.abs(this.theta - ray.theta)));
                     if (dist < minDist) {
                         minDist = dist;
                         closestP = intersect; // make closest point the current point
@@ -33,6 +33,7 @@ class Camera {
             }
             if (closestP) { // if any intersection was found
                 drawLine(ctx2D, ray.p1, closestP);
+                // remove fisheye effect
                 drawSlice(ctx3D, i, minDist, this.rayCount, this.rayLen);
             }
             else { // if no intersection found
@@ -49,7 +50,6 @@ class Camera {
 
     updatePos(controller) {
         //update camera position based on keys pressed
-        console.log("updating position");
         if (controller["a"].pressed) {
             this.theta -= 0.01;
         } else if (controller["d"].pressed) {

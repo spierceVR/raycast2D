@@ -57,7 +57,6 @@
 
 // called each frame to draw the scene
 animate = (camera, barriers, ctx1, ctx2, controller) => {
-    console.log("animating");
     // update cameras position in the scene based on keys pressed
     camera.updatePos(controller);
 
@@ -128,9 +127,9 @@ calculateIntersection = (p0, p1, p2, p3) => {
 };
 
 //draw a vertical slice of the wall
-function drawSlice(ctx, x, dist, rayCount, rayLen) {
-    const colorVal = (1 - (dist / rayLen)) * 255;
-    const wallHeight = (1 - (dist / rayLen)) * ctx.canvas.height;
+function drawSlice(ctx, x, rayDist, rayCount, rayLen) {
+    const colorVal = (1 - (rayDist / rayLen)) * 255;
+    const wallHeight =  ctx.canvas.height * (1 - (rayDist / rayLen));
     const gray = `rgb(${colorVal}, ${colorVal}, ${colorVal})`;
     const sliceWidth = ctx.canvas.width / rayCount;
     drawRectangle(ctx, x * sliceWidth, (ctx.canvas.height - wallHeight) * 0.5, sliceWidth, wallHeight, gray);
