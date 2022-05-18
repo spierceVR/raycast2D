@@ -9,7 +9,7 @@ class Camera {
 
         this.rays = [];
         for (let i = 0; i < rayCount; i++) {
-            let rayTheta = (i * (radians(fov) / rayCount)) - (radians(fov) / 2) + radians(theta);
+            let rayTheta = (i * (fov / rayCount)) - (fov / 2) + theta;
             let r1 = new Ray(this.x, this.y, rayTheta, rayLen);
             this.rays.push(r1);
         }
