@@ -27,7 +27,7 @@
     const barriers = genBarriers(canvas1);
 
     //create singleton camera
-    const camera = new Camera(canvas1.width / 2, canvas1.height / 2, fov, 0, rayCount, rayLen);
+    const camera = new Camera(canvas1.width / 2, canvas1.height / 2, radians(fov), radians(0), rayCount, rayLen);
 
     // stores which keys are pressed
     const controller = {
@@ -127,18 +127,20 @@ calculateIntersection = (p0, p1, p2, p3) => {
 };
 
 //draw a vertical slice of the wall
-function drawSlice(ctx, x, rayDist, rayCount, rayLen) {
+function drawSlice(ctx, x, rayDist, rayCount, rayLen, projPlaneDist) {
+    const h = ctx.canvas.height;
+    const w = ctx.canvas.width;
     const colorVal = (1 - (rayDist / rayLen)) * 255;
-    const wallHeight =  ctx.canvas.height * (1 - (rayDist / rayLen));
+    const wallHeight =  (h / rayDist) * projPlaneDist;
     const gray = `rgb(${colorVal}, ${colorVal}, ${colorVal})`;
-    const sliceWidth = ctx.canvas.width / rayCount;
-    drawRectangle(ctx, x * sliceWidth, (ctx.canvas.height - wallHeight) * 0.5, sliceWidth, wallHeight, gray);
+    const sliceWidth = 1;
+    drawRectangle(ctx, x * sliceWidth, (h - wallHeight) * 0.5, sliceWidth, wallHeight, gray);
 }
 
 //set size of canvas
 function resize(canvas) {
-    canvas.width = window.innerWidth * .45;
-    canvas.height = window.innerHeight * .7;
+    canvas.width = 480;
+    canvas.height = 320;
 }
 
 // create array of randomly generated barriers
