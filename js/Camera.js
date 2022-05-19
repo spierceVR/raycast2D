@@ -68,12 +68,12 @@ class Camera {
         }
 
         if (controller["w"].pressed) {
-            this.x += Math.cos(this.theta) * 0.5;
-            this.y += Math.sin(this.theta) * 0.5;
+            this.x += Math.cos(this.theta) * 0.40;
+            this.y += Math.sin(this.theta) * 0.40;
         }
         else if (controller["s"].pressed) {
-            this.x -= Math.cos(this.theta) * 0.5;
-            this.y -= Math.sin(this.theta) * 0.5;
+            this.x -= Math.cos(this.theta) * 0.40;
+            this.y -= Math.sin(this.theta) * 0.40;
         }
 
         //update rays based on new camera position

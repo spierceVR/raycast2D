@@ -71,7 +71,7 @@ animate = (camera, barriers, ctx1, ctx2, controller) => {
     window.requestAnimationFrame((timestamp) => animate(camera, barriers, ctx1, ctx2, controller));
 }
 
-function handleApplySettings(camera, fovLabel, countLabel) {
+function handleApplySettings(camera, fovLabel) {
     // get fresh slider values
     const fov = document.getElementById("sliderFov").value;
     const rayLen = document.getElementById("sliderLen").value;
