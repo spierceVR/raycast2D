@@ -56,17 +56,17 @@ class Camera {
     updatePos(controller) {
         //update camera position based on keys pressed
         if (controller["a"].pressed) {
-            this.theta -= 0.5;
+            this.theta -= 0.02;
         } else if (controller["d"].pressed) {
-            this.theta += 0.5;
+            this.theta += 0.02;
         }
 
         if (controller["w"].pressed) {
-            this.x += Math.cos(this.theta) * 0.1;
-            this.y += Math.sin(this.theta) * 0.1;
+            this.x += Math.cos(this.theta) * 0.5;
+            this.y += Math.sin(this.theta) * 0.5;
         } else if (controller["s"].pressed) {
-            this.x -= Math.cos(this.theta) * 0.1;
-            this.y -= Math.sin(this.theta) * 0.1;
+            this.x -= Math.cos(this.theta) * 0.5;
+            this.y -= Math.sin(this.theta) * 0.5;
         }
 
         //update rays based on new camera position
