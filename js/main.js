@@ -128,7 +128,7 @@ function drawSlice(ctx, x, correctedDist, rayCount, rayLen, projPlaneDist) {
     const h = ctx.canvas.height;
     const w = ctx.canvas.width;
 
-    const colorVal = (1 - (correctedDist / rayLen)) * 255;
+    const colorVal = (1 - (correctedDist / rayLen)) * 155 + 100;
     const color = `rgb(${colorVal}, ${colorVal}, ${colorVal})`;
     
     const wallHeight =  (h / correctedDist) * 16;
@@ -186,9 +186,9 @@ function setup3D(ctx) {
     // Create gradient
     let grd = ctx.createLinearGradient(w, h, w, h * 0.45);
     grd.addColorStop(0, "green");
-    grd.addColorStop(1, "black");
+    grd.addColorStop(1, "gray");
 
     // Fill with gradient
     ctx.fillStyle = grd;
-    ctx.fillRect(0, h * 0.5, w, h)
+    ctx.fillRect(0, h * 0.53, w, h)
 }
