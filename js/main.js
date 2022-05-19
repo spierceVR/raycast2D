@@ -15,19 +15,19 @@
 
 
     // I/O from sliders for ray count, ray length, and FOV
-    const rayCount = document.getElementById("sliderCount").value;
+    // const rayCount = document.getElementById("sliderCount").value;
     const fov = document.getElementById("sliderFov").value;
     const rayLen = document.getElementById("sliderLen").value;
 
     const fovLabel = document.getElementById("fovLabel");
-    const countLabel = document.getElementById("countLabel");
+    // const countLabel = document.getElementById("countLabel");
 
 
     // generate random barriers
     const barriers = genBarriers(canvas1);
 
-    //create singleton camera
-    const camera = new Camera(canvas1.width / 2, canvas1.height / 2, radians(fov), radians(0), rayCount, rayLen);
+    //create camera
+    const camera = new Camera(canvas1.width / 2, canvas1.height / 2, radians(fov), radians(0), rayLen);
 
     // stores which keys are pressed
     const controller = {
@@ -50,7 +50,7 @@
     })
     
     // new camera from slider values on click button
-    document.getElementById("apply").addEventListener("click", () => { handleApplySettings(camera, fovLabel, countLabel) });
+    document.getElementById("apply").addEventListener("click", () => { handleApplySettings(camera, fovLabel) });
 
     window.requestAnimationFrame((timestamp) => animate(camera, barriers, ctx1, ctx2, controller));
 })();
@@ -74,19 +74,16 @@ animate = (camera, barriers, ctx1, ctx2, controller) => {
 function handleApplySettings(camera, fovLabel, countLabel) {
     // get fresh slider values
     const fov = document.getElementById("sliderFov").value;
-    const rayCount = document.getElementById("sliderCount").value;
     const rayLen = document.getElementById("sliderLen").value;
 
-    setLabels(fovLabel, countLabel, fov, rayCount);
-    camera.updateSettings(fov, rayCount, rayLen);
+    setLabels(fovLabel, fov);
+    camera.updateSettings(radians(fov), rayLen);
 }
 
 //update page labels for ray count and length
-function setLabels(fovLabel, countLabel, fov, rayCount) {
-    countLabel.innerHTML = "Ray Count : " + rayCount;
-    fovLabel.innerHTML = "FOV : " + fov;
+function setLabels(fovLabel, fov) {
+    fovLabel.innerHTML = "FOV: " + fov;
 }
-
 
 function pointDistance(p1, p2) {
     return Math.hypot((p1.x - p2.x), (p1.y - p2.y))
@@ -127,14 +124,16 @@ calculateIntersection = (p0, p1, p2, p3) => {
 };
 
 //draw a vertical slice of the wall
-function drawSlice(ctx, x, rayDist, rayCount, rayLen, projPlaneDist) {
+function drawSlice(ctx, x, correctedDist, rayCount, rayLen, projPlaneDist) {
     const h = ctx.canvas.height;
     const w = ctx.canvas.width;
-    const colorVal = (1 - (rayDist / rayLen)) * 255;
-    const wallHeight =  (h / rayDist) * projPlaneDist;
-    const gray = `rgb(${colorVal}, ${colorVal}, ${colorVal})`;
+
+    const colorVal = (1 - (correctedDist / rayLen)) * 255;
+    const color = `rgb(${colorVal}, ${colorVal}, ${colorVal})`;
+    
+    const wallHeight =  (h / correctedDist) * 16;
     const sliceWidth = 1;
-    drawRectangle(ctx, x * sliceWidth, (h - wallHeight) * 0.5, sliceWidth, wallHeight, gray);
+    drawRectangle(ctx, x * sliceWidth, (h - wallHeight)/2, sliceWidth, wallHeight, color);
 }
 
 //set size of canvas
@@ -150,6 +149,13 @@ function genBarriers(canvas) {
         let b1 = new Barrier(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * canvas.width, Math.random() * canvas.height);
         barriers.push(b1);
     }
+    //add barriers around edges of canvas
+    barriers.push(new Barrier(0, 0, canvas.width, 0));
+    barriers.push(new Barrier(canvas.width, 0, canvas.width, canvas.height));
+    barriers.push(new Barrier(0, canvas.height, canvas.width, canvas.height));
+    barriers.push(new Barrier(0, 0, 0, canvas.height));
+
+
     return barriers;
 }
 
@@ -174,12 +180,12 @@ function setup3D(ctx) {
     let h = ctx.canvas.height;
     let w = ctx.canvas.width;
     //draw background
-    drawRectangle(ctx, 0, 0, w, h);
+    drawRectangle(ctx, 0, 0, w, h, "lightblue");
 
     //draw floor
     // Create gradient
     let grd = ctx.createLinearGradient(w, h, w, h * 0.45);
-    grd.addColorStop(0, "gray");
+    grd.addColorStop(0, "green");
     grd.addColorStop(1, "black");
 
     // Fill with gradient
